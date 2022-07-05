@@ -75,18 +75,18 @@ var displayCities = function (city, searchTerm) {
     // loop over city
     for (var i = 0; i < city.length; i++) {
         // format city name
-        var cityName = city[i].id + '/' + city[i].name;
+        var cityName = city[i].name + city[i].main.feels_like + city[i].main.humidity + city[i].main.temp;
 
         // create a container for each city
-        var cityEl = document.createElement('div');
-        cityEl.classList = 'list-item flex-row justify-space-between align-center';
+        var cityContainerEl = document.createElement('div');
+        cityContainerEl.classList = 'list-item flex-row justify-space-between align-center';
 
-        // create a span element to hold repository name
+        // create a span element to hold city name
         var titleEl = document.createElement('span');
         titleEl.textContent = cityName;
 
         // append to container
-        cityEl.appendChild(titleEl);
+        cityContainerEl.appendChild(titleEl);
 
         // create a status element
         var statusEl = document.createElement('span');
