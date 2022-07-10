@@ -13,7 +13,7 @@ var formSubmitHandler = function (event) {
     var cityName = cityInputEl.value.trim();
 
     if (cityName) {
-        getCityWeather(cityName);
+        getGeoWeather(cityName);
 
         // clear old content
         cityContainerEl.textContent = '';
@@ -23,10 +23,10 @@ var formSubmitHandler = function (event) {
     }
 };
 
-var getCityWeather = function (userFormEl) {
+var getCityWeather = function (lat, lon, cityName) {
 
     // format the openweather api url
-    var apiUrl = "http://api.openweathermap.org/data/2.5/weather?q=" + userFormEl + "&limit=" + 1 + "&appid=" + apiKey + "&units=imperial";
+    var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&exclude=hourly&units=imperial" + "&appid=" + apiKey;
 
     // make a get request to url
     fetch(apiUrl)
@@ -36,7 +36,7 @@ var getCityWeather = function (userFormEl) {
 
                 console.log(data);
             
-                displayCities(data, userFormEl);
+                displayCityWeather(data);
 
             });
         } else {
@@ -50,18 +50,47 @@ var getCityWeather = function (userFormEl) {
 };
 
 
-var getGeoWeather = function (lat, lon) {
+var getGeoWeather = function (cityName) {
     // format the github api url
-    var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?qlat=" + lat + "&lon=" + lon + "&appid=" + apiKey;
+    var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName  +  "&limit=" + 1 + "&appid=" + apiKey;
 
     // make a get request to url
-    fetch(apiUrl).then(function (response) {
+    fetch(apiUrl)
+    .then(function (response) {
         console.log(response);
         return response.json().then(function (data) {
             console.log(data);
+            var cityAndState = data[0].name + " , " + data[0].state;
+            var locLat = data[0].lat;
+            var locLon = data[0].lon;
+            getCityWeather(locLat, locLon, cityAndState);
         });
     });
 };
+
+var displayCityWeather = function(currentWeather) {
+    console.log(currentWeather);
+
+    cityListEl = document.createElement('div');
+    cityListEl.classList.add('city-list','col-6');
+    cityListEl.textContent = currentWeather.name;
+    cityContainerEl.appendChild(cityListEl);
+    
+    var displayWeatherCard = document.createElement('div');
+    displayWeatherCard.classList.add('container-fluid');
+    displayWeatherCard.innerHTML = 
+      "<h5 >Name: " + dateConversion(currentWeather.daily[0].dt) + "</h5>" +
+      "<figure class='figure'>" +
+      "<img src=http://openweathermap.org/img/wn/" +  currentWeather.current.weather[0].icon + '@2x.png' + " alt='Placeholder image'></figure>" + 
+      "<p class=title >Temp: " + currentWeather.current.temp + "</p>" + 
+      "<p class=title >Wind: " + currentWeather.current.wind_speed + "</p>" + 
+      "<p class=title >Humidity: " + currentWeather.daily[0].humidity + "</p>" +
+      "<p class=title >UV Index: " + currentWeather.daily[0].uvi + "</p>" +  
+      "</div>"
+    cityContainerEl.appendChild(displayWeatherCard);
+    
+
+}
 
 var displayCities = function (city, searchTerm) {
     // check if api returned any weather data
@@ -71,7 +100,7 @@ var displayCities = function (city, searchTerm) {
     }
 
     citySearchTerm.textContent = searchTerm;
-
+    console.log(searchTerm);
     // loop over city
     for (var i = 0; i < city.length; i++) {
         // format city name
@@ -94,6 +123,12 @@ var displayCities = function (city, searchTerm) {
 
     }
 };
+
+var dateConversion = function(unixTimeStamp) {
+    var readableDate = new Date(unixTimeStamp * 1000);
+    var realDate = readableDate.toLocaleDateString();
+    return realDate;
+}
 
 
     //getCityWeather("Virginia");
