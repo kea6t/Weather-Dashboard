@@ -4,6 +4,9 @@ var cityInputEl = document.querySelector('#city');
 var cityContainerEl = document.querySelector('#city-container');
 var cardContainerEl = document.querySelector('#card-container');
 var citySearchTerm = document.querySelector('#city-search-term');
+var buttonContainerEl = document.querySelector('#btn-container');
+// create empty array
+//var citySearchHistory = [];
 
 
 var formSubmitHandler = function (event) {
@@ -24,7 +27,7 @@ var formSubmitHandler = function (event) {
     }
 };
 
-var getCityWeather = function (lat, lon, cityName) {
+var getCityWeather = function (lat, lon, userFormEl) {
 
     // format the openweather api url
     var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&exclude=hourly&units=imperial" + "&appid=" + apiKey;
@@ -37,8 +40,11 @@ var getCityWeather = function (lat, lon, cityName) {
 
                     console.log(data);
 
+                    
                     displayCityWeather(data);
                     displayFiveDayForecast(data);
+                    
+                    
 
                 });
             } else {
@@ -52,9 +58,9 @@ var getCityWeather = function (lat, lon, cityName) {
 };
 
 
-var getGeoWeather = function (cityName) {
+var getGeoWeather = function (userFormEl) {
     // format the github api url
-    var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=" + 1 + "&appid=" + apiKey;
+    var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + userFormEl + "&limit=" + 1 + "&appid=" + apiKey;
 
     // make a get request to url
     fetch(apiUrl)
@@ -73,6 +79,11 @@ var getGeoWeather = function (cityName) {
 // function to display current weather information
 var displayCityWeather = function (currentWeather) {
     console.log(currentWeather);
+    // check if api returned any weather data
+    if (currentWeather.length === 0) {
+        cityContainerEl.textContent = 'No weather condition found.';
+        return;
+    }
 
     cityListEl = document.createElement('div');
     cityListEl.classList.add('city-list', 'col-6');
@@ -86,7 +97,7 @@ var displayCityWeather = function (currentWeather) {
     displayWeatherCard.innerHTML =
         "<h5 >Name: " + dateConversion(currentWeather.current.dt) + "</h5>" +
         "<figure class='figure'>" +
-        "<img src=http://openweathermap.org/img/wn/" + currentWeather.current.weather[0].icon + '@2x.png' + " alt='Placeholder image'></figure>" +
+        "<img src=https://openweathermap.org/img/wn/" + currentWeather.current.weather[0].icon + '@2x.png' + " alt='Placeholder image'></figure>" +
         "<p class=title >Temp: " + currentWeather.current.temp + "°F</p>" +
         "<p class=title >Wind: " + currentWeather.current.wind_speed + " MPH</p>" +
         "<p class=title >Humidity: " + currentWeather.current.humidity + " %</p>" +
@@ -100,6 +111,11 @@ var displayCityWeather = function (currentWeather) {
 // function to display 5-Day forecast 
 var displayFiveDayForecast = function (fiveDayForecast) {
     console.log(fiveDayForecast);
+    // check if api returned any weather data
+    if (fiveDayForecast.length === 0) {
+        cardContainerEl.textContent = 'No weather condition found.';
+        return;
+    }
     // loop over fiveDayForecast
     for (var i = 1; i < 6; i++) {
         // creating a new div element to show up in html with the weather information
@@ -109,7 +125,7 @@ var displayFiveDayForecast = function (fiveDayForecast) {
         displayForecastCard.innerHTML = "<div class='col-12'> <div class='card'> <div class='card-body'>" +
             "<h5 class='card-title'>Date " + dateConversion(fiveDayForecast.daily[i].dt) + "</h5>" +
             "<figure class='figure'>" +
-            "<img src=http://openweathermap.org/img/wn/" + fiveDayForecast.daily[i].weather[0].icon + '@2x.png' + " alt='Placeholder image'></figure>" +
+            "<img src=https://openweathermap.org/img/wn/" + fiveDayForecast.daily[i].weather[0].icon + '@2x.png' + " alt='Placeholder image'></figure>" +
             "<h6 class='card-subtitle mb-2'>Temp: " + fiveDayForecast.daily[i].temp.day + "°F</h6>" +
             "<h6 class='card-subtitle mb-2'>Wind: " + fiveDayForecast.daily[i].wind_speed + " MPH</h6>" +
             "<h6 class='card-subtitle mb-2'>Humidity: " + fiveDayForecast.daily[i].humidity + " %</h6>" +
@@ -153,6 +169,37 @@ var displayCities = function (city, searchTerm) {
     }
 };
 
+// // save city to localStorage
+// var savedCity = function () {
+//     localStorage.setItem("city", JSON.stringify(citySearchHistory));
+// };
+
+// //   loads the city from localStorage
+// var loadCity = function () {
+//     var savedCity = localStorage.getItem("city");
+//     // if there are no city, set city to an empty array and return out of the function
+//     if (!savedCity) {
+//         return false;
+//     }
+//     console.log("Saved city found!");
+//     // else, load up saved city
+
+//     // parse into array of objects
+//     savedCity = JSON.parse(savedCity);
+
+//     // loop through savedCity array
+//     for (var i = 0; i < savedCity.length; i++) {
+//         // pass each city object into the button
+//         // create city button
+//         var cityButtonEl = document.createElement("button");
+//         cityButtonEl.textContent = savedCity[i].userFormEl;
+//         cityButtonEl.classList.add("btn", "btn-primary", "btn-lg", "btn-block" );
+//         cityButtonEl.setAttribute("data-lon", savedCity[i].lon);
+//         cityButtonEl.setAttribute("data-lat", savedCity[i].lat);
+//         buttonContainerEl.appendChild(cityButtonEl);
+//     }
+// };
+
 // function to convert the date to current date format
 var dateConversion = function (unixTimeStamp) {
     // variable to convert the original date to current date format
@@ -161,7 +208,7 @@ var dateConversion = function (unixTimeStamp) {
     return realDate;
 }
 
-
+//loadCity();
 //getCityWeather("Virginia");
 //getGeoWeather("lat, lon");
 
