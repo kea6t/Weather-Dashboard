@@ -12,5 +12,7 @@ header {
   max-width: 300px;
   text-align: center;
   font-family: arial;
+  justify-content: space-between;
+  display: flex;
 }
 
